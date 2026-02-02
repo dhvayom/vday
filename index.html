@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Nannalu 💖</title>
+    <!-- Google Fonts: Varela Round for cute clean text, Gaegu for cute-handwritten feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Gaegu:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Quicksand:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --blush-pink: #FFD1DC;
+            --lavender: #E6E6FA;
+            --peach: #FFDAB9;
+            --mint: #BFFCC6;
+            --cream: #FFFDF5;
+            --text-color: #5D4037;
+            --accent-pink: #FF8DA1;
+            --deep-rose: #E91E63;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --glass: rgba(255, 255, 255, 0.65);
+            --card-radius: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; 
+        }
+
+        body {
+            font-family: 'Varela Round', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Gaegu', cursive;
+            font-weight: 700;
+        }
+
+        .cursive-title {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* --- Three.js Background Container --- */
+        #three-canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- Custom Cursor --- */
+        #custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 141, 161, 0.3);
+            border: 2px solid var(--accent-pink);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #custom-cursor::after {
+            content: '✨';
+            font-size: 12px;
+        }
+
+        .hovering #custom-cursor {
+            transform: translate(-50%, -50%) scale(1.8);
+            background: var(--accent-pink);
+        }
+
+        /* --- Lock Screen --- */
+        #lock-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--blush-pink), var(--lavender));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            transition: 1s ease;
+        }
+
+        .lock-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            max-width: 380px;
+            width: 90%;
+            border: 2px solid white;
+            text-align: center;
+        }
+
+        #magic-word {
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid var(--blush-pink);
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            font-family: 'Varela Round', sans-serif;
+        }
+
+        .unlock-btn {
+            background: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Varela Round', sans-serif;
+        }
+
+        /* --- Aesthetic Polaroid Gallery --- */
+        .gallery-container {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
+            padding: 40px 20px;
+            margin: 40px 0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .polaroid {
+            background: white;
+            padding: 15px 15px 40px 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-radius: 4px;
+            transition: 0.4s;
+            position: relative;
+        }
+
+        .polaroid::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(0,0,0,0.02);
+            z-index: 2;
+        }
+
+        .polaroid:nth-child(odd) { transform: rotate(-2deg); }
+        .polaroid:nth-child(even) { transform: rotate(2deg); }
+
+        .polaroid:hover {
+            transform: scale(1.05) rotate(0deg);
+            z-index: 10;
+            box-shadow: 0 15px 40px rgba(255, 141, 161, 0.2);
+        }
+
+        .polaroid img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 2px;
+            background: #f9f9f9;
+        }
+
+        .polaroid-caption {
+            font-family: 'Gaegu', cursive;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        /* --- Sections --- */
+        #main-content { display: none; opacity: 0; transition: 1s; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        
+        section { margin-bottom: 120px; text-align: center; }
+
+        .hero h1 { font-size: 4rem; color: var(--deep-rose); margin-bottom: 10px; }
+        .hero p { font-size: 1.5rem; color: var(--accent-pink); }
+
+        .love-letter {
+            background: white;
+            padding: 50px;
+            border-radius: 2px;
+            box-shadow: 10px 10px 0 var(--blush-pink);
+            border: 1px solid #eee;
+            line-height: 2;
+            text-align: left;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* --- Music Control --- */
+        #music-control {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 2000;
+            background: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--blush-pink);
+            font-size: 1.5rem;
+        }
+
+        /* --- Animations --- */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* --- Enhanced Modal with Bloom Effect --- */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        #modal-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .modal-card {
+            background: linear-gradient(145deg, #fff5f7, #ffffff, #fff9fb);
+            padding: 55px 45px;
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(255, 105, 180, 0.5),
+                        0 0 80px rgba(255, 192, 203, 0.4),
+                        inset 0 2px 0 rgba(255, 255, 255, 1);
+            max-width: 550px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            z-index: 10001;
+            border: 4px solid rgba(255, 182, 193, 0.6);
+            animation: morphIn 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        .modal-card::before {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, rgba(255, 105, 180, 0.3), transparent 70%);
+            border-radius: 50px;
+            filter: blur(30px);
+            z-index: -1;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .modal-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmerSweep 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .modal-title {
+            font-family: 'Caveat', cursive;
+            font-size: 3.8rem;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 25%, #ff1493 50%, #c44569 75%, #ff6b9d 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 20px rgba(255, 105, 180, 0.3);
+            animation: gradientSlide 3s ease infinite, wiggle 2s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .telugu-quote {
+            font-family: 'Noto Sans Telugu', sans-serif;
+            font-size: 1.3rem;
+            color: #c44569;
+            margin: 20px 0;
+            font-weight: 600;
+            font-style: italic;
+            animation: wave 2s ease-in-out infinite;
+            text-shadow: 1px 1px 10px rgba(255, 105, 180, 0.2);
+        }
+
+        .modal-message {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: #5D4037;
+            margin: 25px 0;
+            font-weight: 600;
+            animation: fadeSlideIn 1s ease 0.3s backwards;
+        }
+
+        .modal-emojis {
+            font-size: 4.5rem;
+            margin: 35px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .modal-emoji {
+            display: inline-block;
+            animation: heartBeat 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 10px 20px rgba(255, 105, 180, 0.5));
+            transform-origin: center;
+        }
+
+        .modal-emoji:nth-child(1) { animation-delay: 0s; }
+        .modal-emoji:nth-child(2) { animation-delay: 0.3s; }
+        .modal-emoji:nth-child(3) { animation-delay: 0.6s; }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #ff1493);
+            background-size: 200% auto;
+            color: white;
+            border: none;
+            padding: 20px 45px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            box-shadow: 0 10px 30px rgba(196, 69, 105, 0.5);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+            animation: pulse2 2s ease-in-out infinite;
+        }
+
+        .modal-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .modal-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(196, 69, 105, 0.6);
+            background-position: right center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes morphIn {
+            0% { 
+                transform: scale(0.3) rotate(-15deg); 
+                opacity: 0;
+                border-radius: 50%;
+            }
+            60% { 
+                transform: scale(1.1) rotate(5deg); 
+            }
+            100% { 
+                transform: scale(1) rotate(0deg); 
+                opacity: 1;
+                border-radius: 40px;
+            }
+        }
+
+        @keyframes breathe {
+            0%, 100% { 
+                opacity: 0.4;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shimmerSweep {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        @keyframes gradientSlide {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-2deg); }
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); }
+        }
+
+        @keyframes fadeSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg); 
+            }
+            10% { 
+                transform: scale(1.2) rotate(-5deg); 
+            }
+            20% { 
+                transform: scale(1.1) rotate(5deg); 
+            }
+            30% { 
+                transform: scale(1.3) rotate(-5deg); 
+            }
+            40% { 
+                transform: scale(1) rotate(0deg); 
+            }
+        }
+
+        @keyframes pulse2 {
+            0%, 100% { box-shadow: 0 10px 30px rgba(196, 69, 105, 0.5); }
+            50% { box-shadow: 0 10px 40px rgba(196, 69, 105, 0.7), 0 0 30px rgba(255, 105, 180, 0.4); }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.5rem; }
+            .love-letter { padding: 30px 20px; }
+            .modal-title { font-size: 2.8rem; }
+            .modal-message { font-size: 1rem; }
+            .modal-emojis { font-size: 3rem; }
+            .telugu-quote { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="custom-cursor"></div>
+    <div id="three-canvas-container"></div>
+
+    <!-- Music -->
+    <button id="music-control" onclick="toggleMusic()" style="display:none">🎵</button>
+    <audio id="bg-music" loop>
+        <source src="https://www.chosic.com/wp-content/uploads/2021/04/Warm-Memories-Emotional-Inspiring-Piano.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Lock Screen -->
+    <div id="lock-screen">
+        <div class="lock-card" id="lock-card">
+            <span style="font-size: 3rem;">🔒</span>
+            <h2 style="margin-top: 10px;">Our Private Space</h2>
+            <p style="font-size: 0.9rem; color: #888;">Only the magic word can open my heart...</p>
+            <input type="password" id="magic-word" placeholder="Our magic word... ✨">
+            <button class="unlock-btn" onclick="checkUnlock()">Unlock My Heart 💘</button>
+            <p id="error-msg" style="margin-top: 15px; color: var(--deep-rose); display: none;">Hmm... try again, my love 🫶</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <div class="container">
+            
+            <section class="hero">
+                <h1>Hi, Nannalu 💖</h1>
+                <p style="font-family: 'Pacifico', cursive;">you make every second feel like magic.</p>
+                <div style="margin-top: 30px; font-size: 1.2rem; color: var(--accent-pink);">
+                    ✿ ❀ ✿ ❀ ✿ ❀ ✿ ❀ ✿
+                </div>
+            </section>
+
+            <section class="gallery">
+                <div class="gallery-container">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Our Precious Moments 📸</h2>
+                    <div class="photo-grid">
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets\images\1.png" alt="Moment 1">
+                            <div class="polaroid-caption">Two souls, one heart ❤️</div>
+                            <div style="position: absolute; top: -25px; left: -25px; font-size: 2.5rem; animation: float 3s ease-in-out infinite;">💕</div>
+                            <div style="position: absolute; bottom: -20px; right: -25px; font-size: 2.3rem; animation: pulse 2s ease-in-out infinite;">✨</div>
+                        </div>
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets\images\7.png" alt="Moment 2">
+                            <div class="polaroid-caption">Infinite laughs</div>
+                            <div style="position: absolute; top: -28px; right: -28px; font-size: 2.4rem; animation: float 3s ease-in-out infinite;">🌸</div>
+                            <div style="position: absolute; bottom: -22px; left: -25px; font-size: 2.5rem; animation: pulse 2.5s ease-in-out infinite;">💗</div>
+                        </div>
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets\images\2.png" alt="Moment 3">
+                            <div class="polaroid-caption">love looks this simple 😉</div>
+                            <div style="position: absolute; top: -26px; right: -26px; font-size: 2.6rem; animation: spin 4s linear infinite;">✨</div>
+                            <div style="position: absolute; bottom: -20px; left: -22px; font-size: 2.5rem; animation: pulse 2.3s ease-in-out infinite;">💖</div>
+                        </div>
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets/images/10.png" alt="Moment 4">
+                            <div class="polaroid-caption">Where I find my calm. 💚</div>
+                            <div style="position: absolute; top: -27px; left: -27px; font-size: 2.7rem; animation: float 3s ease-in-out infinite;">💗</div>
+                            <div style="position: absolute; bottom: -23px; right: -27px; font-size: 2.6rem; animation: pulse 2.5s ease-in-out infinite;">🌸</div>
+                        </div>
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets/images/9.png" alt="Moment 5">
+                            <div class="polaroid-caption">Forever to go</div>
+                            <div style="position: absolute; top: -25px; right: -25px; font-size: 2.7rem; animation: float 3.3s ease-in-out infinite;">💖</div>
+                            <div style="position: absolute; bottom: -21px; left: -23px; font-size: 2.6rem; animation: pulse 2.4s ease-in-out infinite;">💕</div>
+                        </div>
+                        <div class="polaroid" style="position: relative; overflow: visible;">
+                            <img src="assets/images/3.png" alt="Moment 6">
+                            <div class="polaroid-caption">glowing in her own grace. ✨</div>
+                            <div style="position: absolute; top: -29px; left: -29px; font-size: 2.8rem; animation: float 3.1s ease-in-out infinite;">💞</div>
+                            <div style="position: absolute; bottom: -26px; right: -29px; font-size: 2.7rem; animation: pulse 2.6s ease-in-out infinite;">🌸</div>
+                        </div>
+                        <div class="polaroid" style="grid-column: 1 / -1; max-width: 500px; margin: 40px auto; transform: rotate(0deg) !important; position: relative; overflow: visible;">
+                            <img src="assets/images/6.png" alt="Moment 7">
+                            <div class="polaroid-caption" style="font-size: 1.5rem; color: var(--deep-rose);">Always choosing her 💕</div>
+                            
+                            <!-- Animated cute stickers -->
+                            <div style="position: absolute; top: -30px; left: -30px; font-size: 3rem; animation: float 3s ease-in-out infinite;">🧸</div>
+                            <div style="position: absolute; top: -25px; right: -25px; font-size: 2.5rem; animation: float 2.5s ease-in-out infinite 0.5s;">💖</div>
+                            <div style="position: absolute; bottom: -20px; left: -35px; font-size: 2.8rem; animation: spin 4s linear infinite;">🌸</div>
+                            <div style="position: absolute; bottom: -25px; right: -30px; font-size: 2.5rem; animation: pulse 2s ease-in-out infinite;">💝</div>
+                            <div style="position: absolute; top: 50%; left: -40px; font-size: 2rem; animation: float 3.5s ease-in-out infinite 1s;">✨</div>
+                            <div style="position: absolute; top: 50%; right: -40px; font-size: 2rem; animation: float 3.5s ease-in-out infinite 1.5s;">💕</div>
+                            <div style="position: absolute; top: 10%; left: -20px; font-size: 1.8rem; animation: pulse 2.5s ease-in-out infinite 0.3s;">💗</div>
+                            <div style="position: absolute; top: 30%; right: -25px; font-size: 2rem; animation: spin 5s linear infinite;">🎀</div>
+                            
+                            <style>
+                                @keyframes float {
+                                    0%, 100% { transform: translateY(0px); }
+                                    50% { transform: translateY(-20px); }
+                                }
+                                @keyframes pulse {
+                                    0%, 100% { transform: scale(1); }
+                                    50% { transform: scale(1.2); }
+                                }
+                                @keyframes spin {
+                                    from { transform: rotate(0deg); }
+                                    to { transform: rotate(360deg); }
+                                }
+                            </style>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="letter-sec">
+                <h2 style="font-size: 2.5rem; margin-bottom: 30px;">A Heartfelt Note ✉️</h2>
+                <div class="love-letter">
+                    <p>My Dearest Gayathri,</p><br>
+                    <p>They say you only fall in love once, but that can't be true. Every time I look at you, I fall in love all over again. You are the kindest, most beautiful soul I have ever known.</p><br>
+                    <p>Thank you for being my Nannalu. Thank you for the way you look at me, the way you laugh, and the way you make the world feel quiet and perfect whenever we are together. I promise to cherish you today, tomorrow, and every day after.</p><br>
+                    <p>With all my soul,</p>
+                    <p class="cursive-title" style="font-size: 1.8rem;">Your Forever Person</p>
+                </div>
+            </section>
+
+            <section class="surprise-box" style="margin-top: 150px;">
+                <button class="unlock-btn" style="padding: 25px 50px; font-size: 1.5rem; border-radius: 50px; background: var(--deep-rose);" onclick="showFinalModal()">
+                    Tap for a Heartbeat 💓
+                </button>
+            </section>
+
+        </div>
+
+        <footer style="padding: 60px 20px; text-align: center; color: #888; border-top: 1px dashed var(--blush-pink);">
+            <p>Made just for you, Nannalu. 🤍</p>
+        </footer>
+    </main>
+
+    <!-- Final Surprise Modal -->
+    <div id="modal-overlay" onclick="closeModal()">
+        <canvas id="modal-canvas"></canvas>
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <h1 class="modal-title">Happy First Valentine's Day Gurl!</h1>
+            <!-- <p class="telugu-quote">
+                "నీవు నా హృదయపు స్పందన, నా జీవితపు ఆనందం" 💕
+            </p> -->
+            <p class="modal-message">
+                You are my favorite notification, my favorite dream, and my favorite reality. 
+                Every moment with you is a treasure I'll cherish forever. You light up my world! 🌟
+            </p>
+            <div class="modal-emojis">
+                <span class="modal-emoji">🌹</span>
+                <span class="modal-emoji">💍</span>
+                <span class="modal-emoji">💕</span>
+            </div>
+            <button class="modal-btn" onclick="closeModal()"><span style="position: relative; z-index: 1;">With All My Love! ✨</span></button>
+        </div>
+    </div>
+
+    <script>
+        // --- Three.js Background Logic ---
+        let scene, camera, renderer, hearts = [];
+
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('three-canvas-container').appendChild(renderer.domElement);
+
+            // Create Heart Shape
+            const x = 0, y = 0;
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo( x + 5, y + 5 );
+            heartShape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
+            heartShape.bezierCurveTo( x - 6, y, x - 6, y + 7,x - 6, y + 7 );
+            heartShape.bezierCurveTo( x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19 );
+            heartShape.bezierCurveTo( x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7 );
+            heartShape.bezierCurveTo( x + 16, y + 7, x + 16, y, x + 10, y );
+            heartShape.bezierCurveTo( x + 7, y, x + 5, y + 5, x + 5, y + 5 );
+
+            const geometry = new THREE.ShapeGeometry(heartShape);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffd1dc, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+
+            // Create Heart Particles
+            for(let i = 0; i < 40; i++) {
+                const heart = new THREE.Mesh(geometry, material);
+                heart.position.set(
+                    (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 50
+                );
+                heart.rotation.x = Math.PI; // Flip heart
+                heart.scale.set(0.1, 0.1, 0.1);
+                heart.userData.speed = Math.random() * 0.02 + 0.01;
+                scene.add(heart);
+                hearts.push(heart);
+            }
+
+            camera.position.z = 50;
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            hearts.forEach(h => {
+                h.position.y += h.userData.speed;
+                h.rotation.z += 0.01;
+                if(h.position.y > 50) h.position.y = -50;
+            });
+            renderer.render(scene, camera);
+        }
+
+        // --- Fix: Handle window resize safely ---
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        // --- Custom Cursor ---
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('button, input, .polaroid').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        // --- Unlock Logic ---
+        function checkUnlock() {
+            const val = document.getElementById('magic-word').value.toLowerCase().trim();
+            const lock = document.getElementById('lock-screen');
+            const card = document.getElementById('lock-card');
+            const error = document.getElementById('error-msg');
+
+            if (val === 'youandme') {
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('music-control').style.display = 'flex';
+                document.getElementById('bg-music').play().catch(() => {});
+                
+                lock.style.opacity = '0';
+                lock.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    document.getElementById('main-content').style.opacity = '1';
+                }, 500);
+                initThree(); // Start 3D background after unlock for performance
+            } else {
+                card.style.animation = 'shake 0.5s ease';
+                error.style.display = 'block';
+                setTimeout(() => card.style.animation = '', 500);
+            }
+        }
+
+        function toggleMusic() {
+            const music = document.getElementById('bg-music');
+            if(music.paused) music.play();
+            else music.pause();
+        }
+
+        // Modal Three.js Scene
+        let modalScene, modalCamera, modalRenderer, modalHearts = [], modalAnimating = false;
+
+        function initModalThree() {
+            const canvas = document.getElementById('modal-canvas');
+            modalScene = new THREE.Scene();
+            modalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            modalRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false }); // Disable antialias for performance
+            modalRenderer.setSize(window.innerWidth, window.innerHeight);
+            modalRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limit pixel ratio for low-end devices
+
+            // Create floating emojis with simple geometry
+            const emojis = ['💖', '💕', '✨', '🌟', '💗', '💝', '🎀', '🌸'];
+            const canvas2d = document.createElement('canvas');
+            const ctx = canvas2d.getContext('2d');
+            canvas2d.width = 128;
+            canvas2d.height = 128;
+
+            emojis.forEach((emoji, idx) => {
+                for(let i = 0; i < 4; i++) { // 4 of each emoji
+                    ctx.clearRect(0, 0, 128, 128);
+                    ctx.font = '80px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(emoji, 64, 64);
+
+                    const texture = new THREE.CanvasTexture(canvas2d);
+                    const material = new THREE.SpriteMaterial({ 
+                        map: texture, 
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    const sprite = new THREE.Sprite(material);
+                    
+                    sprite.position.set(
+                        (Math.random() - 0.5) * 40,
+                        (Math.random() - 0.5) * 30,
+                        (Math.random() - 0.5) * 20
+                    );
+                    sprite.scale.set(3, 3, 1);
+                    sprite.userData = {
+                        speedY: Math.random() * 0.02 + 0.01,
+                        speedX: (Math.random() - 0.5) * 0.01,
+                        rotationSpeed: (Math.random() - 0.5) * 0.02
+                    };
+                    
+                    modalScene.add(sprite);
+                    modalHearts.push(sprite);
+                }
+            });
+
+            modalCamera.position.z = 30;
+            modalAnimating = true;
+            animateModal();
+        }
+
+        function animateModal() {
+            if(!modalAnimating) return;
+            requestAnimationFrame(animateModal);
+            
+            modalHearts.forEach(sprite => {
+                sprite.position.y += sprite.userData.speedY;
+                sprite.position.x += sprite.userData.speedX;
+                sprite.material.rotation += sprite.userData.rotationSpeed;
+                
+                // Reset position when out of view
+                if(sprite.position.y > 20) {
+                    sprite.position.y = -20;
+                    sprite.position.x = (Math.random() - 0.5) * 40;
+                }
+            });
+            
+            modalRenderer.render(modalScene, modalCamera);
+        }
+
+        function showFinalModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+            initModalThree();
+            
+            // Enhanced emoji confetti burst
+            const confettiEmojis = ['💖', '💕', '✨', '🌟', '💗', '💝'];
+            for(let i=0; i<40; i++) {
+                const h = document.createElement('div');
+                h.innerText = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+                h.style.position = 'fixed';
+                h.style.left = '50%';
+                h.style.top = '50%';
+                h.style.fontSize = (Math.random() * 20 + 30) + 'px';
+                h.style.zIndex = '10001';
+                h.style.pointerEvents = 'none';
+                h.style.filter = 'drop-shadow(0 0 10px rgba(255, 105, 180, 0.6))';
+                document.body.appendChild(h);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const d = Math.random() * 400 + 150;
+                const duration = Math.random() * 500 + 1000;
+                
+                h.animate([
+                    { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${Math.cos(angle)*d}px), calc(-50% + ${Math.sin(angle)*d}px)) scale(0) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], { duration: duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => h.remove();
+            }
+        }
+
+        function closeModal() {
+            modalAnimating = false;
+            document.getElementById('modal-overlay').style.display = 'none';
+            
+            // Clean up Three.js resources
+            if(modalRenderer) {
+                modalHearts.forEach(sprite => {
+                    sprite.material.map.dispose();
+                    sprite.material.dispose();
+                    modalScene.remove(sprite);
+                });
+                modalHearts = [];
+            }
+        }
+
+        // Enter key support
+        document.getElementById('magic-word').addEventListener('keyup', (e) => {
+            if(e.key === 'Enter') checkUnlock();
+        });
+    </script>
+</body>
+</html>
