@@ -86,12 +86,113 @@
             background: var(--accent-pink);
         }
 
+        /* --- Valentine Question Screen --- */
+        #valentine-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #FF6B9D, #FFA5C5, #FFD1E3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 6000;
+            transition: 1s ease;
+        }
+
+        .valentine-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 60px 50px;
+            border-radius: 50px;
+            box-shadow: 0 30px 80px rgba(255, 105, 180, 0.4);
+            max-width: 500px;
+            width: 90%;
+            border: 3px solid rgba(255, 182, 193, 0.8);
+            text-align: center;
+            position: relative;
+            overflow: visible;
+        }
+
+        .valentine-title {
+            font-family: 'Caveat', cursive;
+            font-size: 4rem;
+            background: linear-gradient(135deg, #ff1493, #ff69b4, #ff1493);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: gradientSlide 3s ease infinite;
+        }
+
+        .valentine-question {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 2.5rem;
+            color: var(--deep-rose);
+            margin: 30px 0 50px 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 10px rgba(255, 105, 180, 0.2);
+        }
+
+        .valentine-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .valentine-btn {
+            padding: 20px 50px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        #yes-btn {
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+        }
+
+        #yes-btn:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 20, 147, 0.4);
+        }
+
+        #no-btn {
+            background: linear-gradient(135deg, #ddd, #eee);
+            color: #666;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            position: absolute;
+            transition: all 0.2s ease;
+        }
+
+        .valentine-hearts {
+            position: absolute;
+            font-size: 3rem;
+            animation: float 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .heart-1 { top: -40px; left: -40px; animation-delay: 0s; }
+        .heart-2 { top: -35px; right: -35px; animation-delay: 0.5s; }
+        .heart-3 { bottom: -45px; left: -45px; animation-delay: 1s; }
+        .heart-4 { bottom: -40px; right: -40px; animation-delay: 1.5s; }
+
         /* --- Lock Screen --- */
         #lock-screen {
             position: fixed;
             inset: 0;
             background: linear-gradient(135deg, var(--blush-pink), var(--lavender));
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -507,10 +608,31 @@
     <div id="custom-cursor"></div>
     <div id="three-canvas-container"></div>
 
+    <!-- Valentine Question Screen -->
+    <div id="valentine-screen">
+        <div class="valentine-card">
+            <div class="valentine-hearts heart-1">💕</div>
+            <div class="valentine-hearts heart-2">💖</div>
+            <div class="valentine-hearts heart-3">💗</div>
+            <div class="valentine-hearts heart-4">💝</div>
+            
+            <h1 class="valentine-title">Hey Beautiful!</h1>
+            <p class="valentine-question">Will you be my Valentine? 🌹</p>
+            
+            <div class="valentine-buttons">
+                <button id="yes-btn" class="valentine-btn" onclick="sayYes()">Yes! 💕</button>
+                <button id="no-btn" class="valentine-btn" onmouseover="moveNoButton()" onclick="moveNoButton()">No</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Music -->
     <button id="music-control" onclick="toggleMusic()" style="display:none">🎵</button>
-    <audio id="bg-music" loop>
-        <source src="https://www.chosic.com/wp-content/uploads/2021/04/Warm-Memories-Emotional-Inspiring-Piano.mp3" type="audio/mpeg">
+    <audio id="bg-music" loop crossorigin="anonymous">
+        <!-- Add your own music file here - download a romantic song and place it in your folder -->
+        <!-- Example: <source src="music.mp3" type="audio/mpeg"> -->
+        <source src="assets/images/music/Perfect-(Mr-Jat.in).mp3" type="audio/mpeg">
+        <!-- <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3" type="audio/mpeg"> -->
     </audio>
 
     <!-- Lock Screen -->
@@ -614,10 +736,28 @@
                 <h2 style="font-size: 2.5rem; margin-bottom: 30px;">A Heartfelt Note ✉️</h2>
                 <div class="love-letter">
                     <p>My Dearest Gayathri,</p><br>
-                    <p>They say you only fall in love once, but that can't be true. Every time I look at you, I fall in love all over again. You are the kindest, most beautiful soul I have ever known.</p><br>
-                    <p>Thank you for being my Nannalu. Thank you for the way you look at me, the way you laugh, and the way you make the world feel quiet and perfect whenever we are together. I promise to cherish you today, tomorrow, and every day after.</p><br>
+                    <p>They say you only fall in love once, but I know that’s not true—because every time I look at you, I fall in love with you all over again.</p><br>
+                    <p>You are the kindest and most beautiful soul I’ve ever known. Thank you for always being there for me, for standing by my side no matter what.</p><br>
+                    <p>Thank you for being my Nannalu. I love the way you look at me, the way you laugh, and how the world feels quiet and perfect when we’re together.</p><br>
+                    <p>You’ve seen me at my weakest and still loved me, cared for me, and pampered me like a baby—and that means everything to me. I promise to cherish you today, tomorrow, and every day after.</p><br>
+                    <p>I love you, my girl.</p> 
+                    <p>Forever us.Love you 3000 ❤️</p><br>
                     <p>With all my soul,</p>
-                    <p class="cursive-title" style="font-size: 1.8rem;">Your Forever Person</p>
+                    <p class="cursive-title" style="font-size: 1.8rem; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(255, 105, 180, 0.6), 0 0 60px rgba(255, 105, 180, 0.4); animation: heartGlow 2s ease-in-out infinite;">your cutie 💕</p>
+                                        <style>
+                                            @keyframes heartGlow {
+                                                0%, 100% { 
+                                                    text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 
+                                                                 0 0 40px rgba(255, 105, 180, 0.6), 
+                                                                 0 0 60px rgba(255, 105, 180, 0.4); 
+                                                }
+                                                50% { 
+                                                    text-shadow: 0 0 30px rgba(255, 20, 147, 1), 
+                                                                 0 0 60px rgba(255, 20, 147, 0.8), 
+                                                                 0 0 90px rgba(255, 105, 180, 0.6); 
+                                                }
+                                            }
+                                        </style>
                 </div>
             </section>
 
@@ -740,7 +880,15 @@
             if (val === 'youandme') {
                 document.getElementById('main-content').style.display = 'block';
                 document.getElementById('music-control').style.display = 'flex';
-                document.getElementById('bg-music').play().catch(() => {});
+                
+                // Try to play music with better error handling
+                const music = document.getElementById('bg-music');
+                music.volume = 0.5; // Set volume to 50%
+                music.play().catch(err => {
+                    console.log('Music autoplay blocked. Click the music button to play:', err);
+                    // Show music control immediately if autoplay fails
+                    document.getElementById('music-control').style.animation = 'pulse 1s ease-in-out infinite';
+                });
                 
                 lock.style.opacity = '0';
                 lock.style.pointerEvents = 'none';
@@ -884,6 +1032,82 @@
         document.getElementById('magic-word').addEventListener('keyup', (e) => {
             if(e.key === 'Enter') checkUnlock();
         });
+
+        // --- Valentine Question Logic ---
+        function sayYes() {
+            const valentineScreen = document.getElementById('valentine-screen');
+            const lockScreen = document.getElementById('lock-screen');
+            const yesBtn = document.getElementById('yes-btn');
+            
+            // Animate yes button
+            yesBtn.style.transform = 'scale(1.3)';
+            
+            // Create heart explosion
+            const hearts = ['💖', '💕', '💗', '💝', '💓', '💞', '💘', '❤️'];
+            for(let i = 0; i < 50; i++) {
+                const heart = document.createElement('div');
+                heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.position = 'fixed';
+                heart.style.left = '50%';
+                heart.style.top = '50%';
+                heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                heart.style.zIndex = '6001';
+                heart.style.pointerEvents = 'none';
+                document.body.appendChild(heart);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 500 + 200;
+                const duration = Math.random() * 1000 + 1500;
+                
+                heart.animate([
+                    { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+                ], { duration: duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => heart.remove();
+            }
+            
+            // Transition to lock screen
+            setTimeout(() => {
+                valentineScreen.style.opacity = '0';
+                valentineScreen.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    valentineScreen.style.display = 'none';
+                    lockScreen.style.display = 'flex';
+                    setTimeout(() => {
+                        lockScreen.style.opacity = '1';
+                    }, 50);
+                }, 800);
+            }, 1000);
+        }
+
+        function moveNoButton() {
+            const noBtn = document.getElementById('no-btn');
+            const container = document.querySelector('.valentine-buttons');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Random position within viewport but not too far
+            const maxX = window.innerWidth - 200;
+            const maxY = window.innerHeight - 100;
+            const minX = 50;
+            const minY = 50;
+            
+            const randomX = Math.random() * (maxX - minX) + minX;
+            const randomY = Math.random() * (maxY - minY) + minY;
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            noBtn.style.transform = 'scale(0.9)';
+            
+            // Shrink the button a bit each time
+            const currentSize = parseFloat(noBtn.style.fontSize || '1.5');
+            if(currentSize > 0.8) {
+                noBtn.style.fontSize = (currentSize - 0.1) + 'rem';
+            }
+            
+            setTimeout(() => {
+                noBtn.style.transform = 'scale(1)';
+            }, 200);
+        }
     </script>
 </body>
 </html>
